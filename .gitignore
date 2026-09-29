@@ -216,3 +216,12 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Allure test results
+allure-results/
+
+# Скриншоты упавших UI-тестов
+screenshots/
+
+# Локальный клон платформы: стенд разворачивается скриптом deploy/deploy.sh
+restful-booker-platform/
