@@ -1,0 +1,41 @@
+# Настройки Jenkins как код (плагин configuration-as-code).
+#
+# Файл копируется в /var/jenkins_home/casc_configs/ контейнера, а путь к нему
+# задаётся переменной CASC_JENKINS_CONFIG.
+#
+# Без блока jenkins Jenkins стартует с SecurityRealm=None и
+# AuthorizationStrategy=Unsecured, то есть открыт всем желающим: флаг
+# -Djenkins.install.runSetupWizard=false отключает мастер настройки,
+# который иначе создал бы администратора.
+
+jenkins:
+  systemMessage: "Restful Booker Platform: прогон UI- и API-тестов"
+
+  securityRealm:
+    local:
+      allowsSignup: false
+      users:
+        - id: "admin"
+          password: "rbp-jenkins-2026"
+
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+
+# Без настроенного адреса Jenkins CLI не работает:
+# "Jenkins URL is not configured (set Jenkins URL in the configuration)".
+unclassified:
+  location:
+    url: "http://147.78.67.204:8080/"
+
+# Без установки Allure шаг `allure` падает с "No Allure installation found".
+# Плагин скачивает командную строку Allure сам из релизов на GitHub.
+tool:
+  allure:
+    installations:
+      - name: "allure"
+        properties:
+          - installSource:
+              installers:
+                - allureManaged:
+                    version: "2.27.0"

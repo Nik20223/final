@@ -1,0 +1,36 @@
+<?xml version='1.1' encoding='UTF-8'?>
+<!--
+  Описание джобы для Jenkins.
+
+  Триггеры здесь намеренно не заданы: они приходят из Jenkinsfile
+  (`triggers { cron(...) }`), поэтому единственный источник правды — репозиторий.
+
+  Файл кладётся в $JENKINS_HOME/jobs/rbp-tests/config.xml внутри контейнера:
+  POST в createItem требует crumb, а тот в Jenkins 2.568 не проходит при
+  Basic-аутентификации.
+-->
+<flow-definition plugin="workflow-job">
+  <description>Прогон API- и UI-тестов Restful Booker Platform: health-гейт,
+    API-набор, UI-набор и Allure-отчёт.</description>
+  <keepDependencies>false</keepDependencies>
+  <properties/>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps">
+    <scm class="hudson.plugins.git.GitSCM" plugin="git">
+      <configVersion>2</configVersion>
+      <userRemoteConfigs>
+        <hudson.plugins.git.UserRemoteConfig>
+          <url>file:///srv/rbp-tests</url>
+        </hudson.plugins.git.UserRemoteConfig>
+      </userRemoteConfigs>
+      <branches>
+        <hudson.plugins.git.BranchSpec>
+          <name>*/main</name>
+        </hudson.plugins.git.BranchSpec>
+      </branches>
+    </scm>
+    <scriptPath>Jenkinsfile</scriptPath>
+    <lightweight>true</lightweight>
+  </definition>
+  <triggers/>
+  <disabled>false</disabled>
+</flow-definition>

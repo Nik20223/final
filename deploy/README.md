@@ -60,3 +60,51 @@ curl -fsS -o /dev/null -w '%{http_code}\n' http://<host>/   # 200
 python -m pytest                     # против адреса из config
 RBP_API_HOST=http://localhost RBP_UI_URL=http://localhost python -m pytest
 ```
+
+## Jenkins
+
+Jenkins живёт отдельным контейнером рядом со стендом и собирается из
+`jenkins.Dockerfile`: в образе есть Python (пайплайн создаёт venv), Chrome для
+UI-тестов и плагины Pipeline, Git и Allure.
+
+```bash
+docker build -t jenkins-rbp -f jenkins.Dockerfile .
+printf 'JAVA_OPTS=%s\nCASC_JENKINS_CONFIG=%s\n' \
+    '-Djenkins.install.runSetupWizard=false -Dhudson.plugins.git.GitSCM.ALLOW_LOCAL_CHECKOUT=true' \
+    '/var/jenkins_home/casc_configs' > /root/jenkins.env
+docker run -d --name jenkins --restart always --network host \
+    -v jenkins_home:/var/jenkins_home \
+    -v /srv/rbp-tests:/srv/rbp-tests \
+    --env-file /root/jenkins.env jenkins-rbp
+```
+
+Почему флаги именно такие:
+
+- `--network host` — контейнер видит стенд на `localhost:80` и портах 3000-3006,
+  а сам Jenkins слушает 8080.
+- `runSetupWizard=false` — без мастера настройки. Мастер заодно создаёт
+  администратора, поэтому и аккаунт, и права задаются в `jenkins-casc.yaml`.
+- `CASC_JENKINS_CONFIG` — без этой переменной configuration-as-code не
+  подхватывает конфиг, и Jenkins остаётся открытым всем желающим
+  (`SecurityRealm=None`, `AuthorizationStrategy=Unsecured`).
+- `ALLOW_LOCAL_CHECKOUT` — git-плагин по умолчанию запрещает checkout из
+  локального каталога. Свойство снимает запрет: это осознанное послабление для
+  схемы, где репозиторий лежит на том же хосте. При переключении джобы на
+  репозиторий GitHub свойство можно убрать.
+
+`jenkins-casc.yaml` описывает администратора, запрет анонимного доступа, адрес
+инстанса (без него не работает CLI) и установку Allure (без неё шаг `allure`
+падает с «No Allure installation found»).
+
+Джоба создаётся из `job-config.xml`: файл кладётся в `jobs/rbp-tests/config.xml`
+внутри `JENKINS_HOME`, потому что POST в `createItem` требует crumb, а тот в
+Jenkins 2.568 не проходит при Basic-аутентификации. Конфиг джобы — обычный
+Pipeline from SCM, скрипт берётся из `Jenkinsfile` в корне репозитория.
+
+Запуск сборки из CLI (сам REST-запуск упирается в ту же проверку crumb):
+
+```bash
+docker exec -w / jenkins sh -c 'curl -s -o /tmp/cli.jar -u admin:<pass> \
+    http://localhost:8080/jnlpJars/jenkins-cli.jar; \
+    java -jar /tmp/cli.jar -s http://<host>:8080 -auth admin:<pass> build rbp-tests'
+```
