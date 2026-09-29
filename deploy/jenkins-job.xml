@@ -6,9 +6,8 @@
   (`triggers { pollSCM(...) }`), поэтому единственный источник правды —
   репозиторий.
 
-  Репозиторий приватный, поэтому для клонирования нужны учётные данные
-  `github-token` (логин GitHub + personal access token). Секрет заводится в
-  самом Jenkins и в репозиторий не попадает.
+  Репозиторий публичный, поэтому джоба клонирует его анонимно и учётные данные
+  в Jenkins заводить не нужно.
 
   Файл кладётся в $JENKINS_HOME/jobs/rbp-tests/config.xml внутри контейнера:
   POST в createItem требует crumb, а тот в Jenkins 2.568 не проходит при
@@ -25,7 +24,6 @@
       <userRemoteConfigs>
         <hudson.plugins.git.UserRemoteConfig>
           <url>https://github.com/Nik20223/final.git</url>
-          <credentialsId>github-token</credentialsId>
         </hudson.plugins.git.UserRemoteConfig>
       </userRemoteConfigs>
       <branches>

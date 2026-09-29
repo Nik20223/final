@@ -86,9 +86,8 @@ docker run -d --name jenkins --restart always --network host \
 - `CASC_JENKINS_CONFIG` — без этой переменной configuration-as-code не
   подхватывает конфиг, и Jenkins остаётся открытым всем желающим
   (`SecurityRealm=None`, `AuthorizationStrategy=Unsecured`).
-- Репозиторий `github.com/Nik20223/final` приватный, поэтому джоба ходит в него
-  с учётными данными `github-token` (логин GitHub и personal access token).
-  Секрет заводится в самом Jenkins и в репозиторий не попадает.
+- Репозиторий `github.com/Nik20223/final` публичный, поэтому джоба клонирует
+  его анонимно и учётные данные в Jenkins заводить не нужно.
 
 `jenkins-casc.yaml` описывает администратора, запрет анонимного доступа, адрес
 инстанса (без него не работает CLI) и установку Allure (без неё шаг `allure`
