@@ -70,11 +70,10 @@ UI-тестов и плагины Pipeline, Git и Allure.
 ```bash
 docker build -t jenkins-rbp -f jenkins.Dockerfile .
 printf 'JAVA_OPTS=%s\nCASC_JENKINS_CONFIG=%s\n' \
-    '-Djenkins.install.runSetupWizard=false -Dhudson.plugins.git.GitSCM.ALLOW_LOCAL_CHECKOUT=true' \
+    '-Djenkins.install.runSetupWizard=false' \
     '/var/jenkins_home/casc_configs' > /root/jenkins.env
 docker run -d --name jenkins --restart always --network host \
     -v jenkins_home:/var/jenkins_home \
-    -v /srv/rbp-tests:/srv/rbp-tests \
     --env-file /root/jenkins.env jenkins-rbp
 ```
 
@@ -87,10 +86,9 @@ docker run -d --name jenkins --restart always --network host \
 - `CASC_JENKINS_CONFIG` — без этой переменной configuration-as-code не
   подхватывает конфиг, и Jenkins остаётся открытым всем желающим
   (`SecurityRealm=None`, `AuthorizationStrategy=Unsecured`).
-- `ALLOW_LOCAL_CHECKOUT` — git-плагин по умолчанию запрещает checkout из
-  локального каталога. Свойство снимает запрет: это осознанное послабление для
-  схемы, где репозиторий лежит на том же хосте. При переключении джобы на
-  репозиторий GitHub свойство можно убрать.
+- Репозиторий `github.com/Nik20223/final` приватный, поэтому джоба ходит в него
+  с учётными данными `github-token` (логин GitHub и personal access token).
+  Секрет заводится в самом Jenkins и в репозиторий не попадает.
 
 `jenkins-casc.yaml` описывает администратора, запрет анонимного доступа, адрес
 инстанса (без него не работает CLI) и установку Allure (без неё шаг `allure`
