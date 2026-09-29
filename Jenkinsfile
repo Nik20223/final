@@ -15,6 +15,13 @@ pipeline {
         disableConcurrentBuilds()
     }
 
+    // Автоматический запуск без внешнего триггера: ночной прогон.
+    // Для запуска на каждый коммит замените на pollSCM('H/15 * * * *')
+    // после переключения джобы на репозиторий GitHub.
+    triggers {
+        cron('H 3 * * *')
+    }
+
     environment {
         RBP_UI_URL = "${params.BASE_URL}"
         RBP_API_HOST = "${params.BASE_URL}"
