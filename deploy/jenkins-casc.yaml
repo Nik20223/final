@@ -11,12 +11,14 @@
 jenkins:
   systemMessage: "Restful Booker Platform: прогон UI- и API-тестов"
 
+  # Пароль в репозитории не хранится: configuration-as-code подставляет его из
+  # переменной окружения контейнера (см. /root/jenkins.env и deploy/.env.example).
   securityRealm:
     local:
       allowsSignup: false
       users:
         - id: "admin"
-          password: "rbp-jenkins-2026"
+          password: "${JENKINS_ADMIN_PASSWORD}"
 
   authorizationStrategy:
     loggedInUsersCanDoAnything:

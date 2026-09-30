@@ -69,9 +69,10 @@ UI-тестов и плагины Pipeline, Git и Allure.
 
 ```bash
 docker build -t jenkins-rbp -f jenkins.Dockerfile .
-printf 'JAVA_OPTS=%s\nCASC_JENKINS_CONFIG=%s\n' \
+printf 'JAVA_OPTS=%s\nCASC_JENKINS_CONFIG=%s\nJENKINS_ADMIN_PASSWORD=%s\n' \
     '-Djenkins.install.runSetupWizard=false' \
-    '/var/jenkins_home/casc_configs' > /root/jenkins.env
+    '/var/jenkins_home/casc_configs' \
+    "$JENKINS_ADMIN_PASSWORD" > /root/jenkins.env
 docker run -d --name jenkins --restart always --network host \
     -v jenkins_home:/var/jenkins_home \
     --env-file /root/jenkins.env jenkins-rbp
@@ -92,6 +93,14 @@ docker run -d --name jenkins --restart always --network host \
 `jenkins-casc.yaml` описывает администратора, запрет анонимного доступа, адрес
 инстанса (без него не работает CLI) и установку Allure (без неё шаг `allure`
 падает с «No Allure installation found»).
+
+### Секреты
+
+Пароль администратора в репозитории не хранится: в `jenkins-casc.yaml` стоит
+`${JENKINS_ADMIN_PASSWORD}`, а значение приходит в контейнер переменной
+окружения из `/root/jenkins.env`. Локально то же значение лежит в `deploy/.env`
+(файл в `.gitignore`) — им пользуются скрипты `jenkins-create-job.sh` и
+`jenkins-poll.sh`. Шаблон для нового окружения — `deploy/.env.example`.
 
 Джоба создаётся из `job-config.xml`: файл кладётся в `jobs/rbp-tests/config.xml`
 внутри `JENKINS_HOME`, потому что POST в `createItem` требует crumb, а тот в

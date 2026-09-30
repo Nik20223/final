@@ -12,7 +12,8 @@ set -euo pipefail
 
 JENKINS_URL="http://localhost:8080"
 JENKINS_USER="admin"
-JENKINS_PASSWORD="rbp-jenkins-2026"
+# Пароль берётся из окружения и в репозитории не хранится (deploy/.env.example).
+JENKINS_PASSWORD="${JENKINS_ADMIN_PASSWORD:?Задайте JENKINS_ADMIN_PASSWORD — см. deploy/.env.example}"
 JOB_NAME="rbp-tests"
 COOKIES="/tmp/jenkins-cookies.txt"
 
