@@ -46,7 +46,6 @@ restful_booker_tests/
 │   ├── jenkins-casc.yaml             # настройки Jenkins как код
 │   ├── jenkins-job.xml               # описание джобы
 │   ├── jenkins-create-job.sh         # создание джобы через REST
-│   ├── jenkins-poll.sh               # принудительный опрос репозитория
 │   ├── .env.example                  # шаблон локальных секретов
 │   └── README.md                     # документация развёртывания
 ├── conftest.py                       # фикстуры: драйвер, админ, API-клиенты

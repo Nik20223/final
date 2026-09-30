@@ -99,8 +99,8 @@ docker run -d --name jenkins --restart always --network host \
 Пароль администратора в репозитории не хранится: в `jenkins-casc.yaml` стоит
 `${JENKINS_ADMIN_PASSWORD}`, а значение приходит в контейнер переменной
 окружения из `/root/jenkins.env`. Локально то же значение лежит в `deploy/.env`
-(файл в `.gitignore`) — им пользуются скрипты `jenkins-create-job.sh` и
-`jenkins-poll.sh`. Шаблон для нового окружения — `deploy/.env.example`.
+(файл в `.gitignore`) — им пользуется скрипт `jenkins-create-job.sh`.
+Шаблон для нового окружения — `deploy/.env.example`.
 
 Джоба создаётся из `job-config.xml`: файл кладётся в `jobs/rbp-tests/config.xml`
 внутри `JENKINS_HOME`, потому что POST в `createItem` требует crumb, а тот в
@@ -109,11 +109,9 @@ Pipeline from SCM, скрипт берётся из `Jenkinsfile` в корне 
 
 Сборка запускается автоматически: `pollSCM('H/15 * * * *')` в `Jenkinsfile`
 опрашивает `main` и ставит сборку в очередь, когда появляется новый коммит.
-Опрос можно инициировать и вручную, не дожидаясь расписания:
-
-```bash
-bash jenkins-poll.sh
-```
+Задержка составляет до пятнадцати минут, а запустить опрос вручную нечем: этот
+эндпоинт закрыт той же проверкой crumb. Мгновенный запуск по коммиту требует
+вебхука GitHub, а для него в образе нет плагина `github`.
 
 Запуск сборки из CLI (сам REST-запуск упирается в ту же проверку crumb):
 
